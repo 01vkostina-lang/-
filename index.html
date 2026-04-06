@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Клуб Экопартнёров ГК «Росатом»</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f0; color: #2d3436; line-height: 1.5; }
+  
+  .header { background: linear-gradient(135deg, #2d8a4e 0%, #1a6b38 100%); color: white; padding: 28px 24px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.18); }
+  .header h1 { font-size: 1.5em; font-weight: 700; line-height: 1.2; }
+  .header .subtitle { font-size: .85em; opacity: .7; margin-bottom: 0; margin-top: 3px; letter-spacing: .04em; text-transform: uppercase; }
+  .header-stats { display: inline-flex; gap: 0; background: rgba(255,255,255,.15); border-radius: 14px; overflow: hidden; margin-top: 22px; margin-bottom: 18px; }
+  .header-stats .stat { display: flex; flex-direction: column; align-items: center; padding: 14px 28px; gap: 2px; }
+  .header-stats .stat + .stat { border-left: 1px solid rgba(255,255,255,.22); }
+  .header-stats .stat-label { font-size: .72em; opacity: .8; letter-spacing: .05em; text-transform: uppercase; }
+  .header-stats .stat-num { font-size: 2.2em; font-weight: 800; line-height: 1.1; }
+
+  .controls { max-width: 800px; margin: 0 auto; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .search-wrap { flex: 1; min-width: 220px; position: relative; display: flex; align-items: center; }
+  .search-box { width: 100%; padding: 10px 36px 10px 16px; border: none; border-radius: 8px; font-size: .95em; background: rgba(255,255,255,.95); color: #2d3436; outline: none; }
+  .search-box::placeholder { color: #999; }
+  .search-clear { position: absolute; right: 10px; background: none; border: none; cursor: pointer; color: #aaa; font-size: 1.1em; line-height: 1; padding: 2px 4px; display: none; }
+  .search-clear:hover { color: #555; }
+  .filter-select { padding: 10px 16px; border: none; border-radius: 8px; font-size: .9em; background: rgba(255,255,255,.95); color: #2d3436; cursor: pointer; outline: none; min-width: 180px; }
+  .reset-btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: .88em; background: rgba(255,255,255,.25); color: white; cursor: pointer; white-space: nowrap; display: none; }
+  .reset-btn:hover { background: rgba(255,255,255,.35); }
+  
+  .stats-bar { text-align: center; padding: 10px; font-size: .82em; color: #888; }
+  
+  .container { max-width: 1100px; margin: 0 auto; padding: 8px 16px 40px; }
+  
+  .city-group { margin-bottom: 20px; }
+  .city-header { background: #2d8a4e; color: white; padding: 10px 20px; border-radius: 10px 10px 0 0; font-size: 1.0em; font-weight: 600; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .city-header:hover { background: #247a43; }
+  .city-header .count { background: rgba(255,255,255,.25); padding: 2px 10px; border-radius: 12px; font-size: .82em; font-weight: 400; }
+  .city-header .arrow { transition: transform .2s; font-size: .8em; }
+  .city-header.collapsed .arrow { transform: rotate(-90deg); }
+  .city-header.non-atomic { background: #5a7a5a; }
+  .city-header.non-atomic:hover { background: #4d6b4d; }
+  
+  .members-list { background: white; border-radius: 0 0 10px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; }
+  .members-list.hidden { display: none; }
+  
+  .member-card { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+  .member-card:last-child { border-bottom: none; }
+  .member-card:hover { background: #f8fdf8; }
+  
+  .member-name { font-size: 1.0em; font-weight: 600; color: #1a6b38; margin-bottom: 3px; }
+  .member-org { font-size: .88em; color: #555; margin-bottom: 6px; }
+  .member-links { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .member-links a { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 6px; font-size: .8em; text-decoration: none; transition: opacity .15s; }
+  .member-links a:hover { opacity: .75; }
+  .link-vk { background: #e3f0ff; color: #2787F5; }
+  .link-tg { background: #e8f4fd; color: #0088cc; }
+  .link-project { background: #e8f5e9; color: #2d8a4e; }
+  .link-phone { background: #fff3e0; color: #e65100; }
+  .member-team { font-size: .8em; color: #999; margin-top: 4px; font-style: italic; }
+  
+  .no-results { text-align: center; padding: 40px; color: #999; font-size: 1.05em; }
+  
+  .expert-badge { display: inline-block; background: #ffd700; color: #5a4800; padding: 1px 8px; border-radius: 4px; font-size: .73em; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+  .city-header.expert { background: #b8860b; }
+  .city-header.expert:hover { background: #a07608; }
+  .non-atomic-note { font-size: .7em; opacity: .75; font-weight: 400; margin-left: 6px; }
+
+  @media (max-width: 600px) {
+    .header { padding: 18px 14px 14px; }
+    .header h1 { font-size: 1.2em; }
+    .header-stats .stat { padding: 10px 18px; }
+    .header-stats .stat-num { font-size: 1.7em; }
+    .controls { flex-direction: column; }
+    .member-card { padding: 12px 14px; }
+    .container { padding: 6px 10px 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Клуб Экопартнёров ГК «Росатом»</h1>
+  <div class="subtitle">Участники сообщества 2026</div>
+  <div class="header-stats">
+    <div class="stat">
+      <span class="stat-label">участники</span>
+      <span class="stat-num" id="stat-members">52</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">атомный город</span>
+      <span class="stat-num">21</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">эксперты</span>
+      <span class="stat-num">6</span>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <input type="text" class="search-box" id="search" placeholder="Поиск по имени, городу или проекту...">
+      <button class="search-clear" id="searchClear" title="Очистить">✕</button>
+    </div>
+    <select class="filter-select" id="cityFilter">
+      <option value="">Все города</option>
+    </select>
+    <button class="reset-btn" id="resetBtn">Сбросить</button>
+  </div>
+</div>
+<div class="stats-bar" id="statsBar"></div>
+<div class="container" id="container"></div>
+
+<script>
+const DATA = [{"city": "Советск, Калининградская область", "surname": "Кутахина", "name": "Татьяна", "contact_method": "", "vk": "https://vk.com/id73014554", "tg": "@KutahinaTany", "phone": "", "org": "Экоактивист, руководитель творческих мастерских общественно-культурного центра «ТеплоСеть», инииатор открытия экоцентра «Собираем Завтра», выпускница акслератора экопрофессий 2025", "project_link": "https://vk.com/club212233232", "team_member": ""}, {"city": "Сосновый Бор, Ленинградская обл.", "surname": "Неведров", "name": "Филипп", "contact_method": "", "vk": "https://vk.com/id2162624", "tg": "t.me/NevedrovFilipp", "phone": "", "org": "Организация \"Формула воды\", проект \"Формула чистой воды\"", "project_link": "", "team_member": ""}, {"city": "Сосновый Бор, Ленинградская обл.", "surname": "Антонинова", "name": "Олеся", "contact_method": "", "vk": "https://vk.com/olesyaantoninova", "tg": "t.me/olesyagorgona", "phone": "", "org": "Экопункт, Руководитель Добро.Центра \"ДОБРО.БОР\"", "project_link": "https://vk.com/dobrobor1", "team_member": ""}, {"city": "Сосновый Бор, Ленинградская обл.", "surname": "Вережинский", "name": "Максим", "contact_method": "", "vk": "https://vk.com/id31004817", "tg": "t.me/maximverezhinskij", "phone": "", "org": "Руководитель Экоцентр \"Круг Жизни\" АНО \"Круг Жизни\"", "project_link": "https://vk.com/vkrugorg, https://vkrug.org/, https://vk.com/ecocentrsbor", "team_member": ""}, {"city": "Сосновый Бор, Ленинградская обл.", "surname": "Кодесникова", "name": "Жанна", "contact_method": "", "vk": "vk.ru/id3325150", "tg": "", "phone": "", "org": "Руководитель благотворительного проекта «Сундучок добра»", "project_link": "https://vk.com/club210873013", "team_member": ""}, {"city": "Полярные зори, Мурманская область", "surname": "Тимофеева", "name": "Галина", "contact_method": "", "vk": "https://vk.com/gala_zym", "tg": "t.me/GalaAtelier", "phone": "", "org": "Руководитель экосообщества \"Полярное сердце\". Организатор экомероприятий, экотренер, основатель мастерской из натуральных тканей, выпускница Акселератора экопрофессий для атомных городов", "project_link": "https://vk.com/ecopolardawns", "team_member": "Подольская Анна  @Anna_Podolskaya_88 Экоактивист, сотрудник УФСИН."}, {"city": "Полярные зори, Мурманская область", "surname": "Анисимова", "name": "Ирина", "contact_method": "", "vk": "", "tg": "@iri_ami", "phone": "", "org": "Специалист по работе с молодежью Молодежного Центра, Добро.Центр Полярные Зори  Экопросвещение детей и молодёжи", "project_link": "", "team_member": ""}, {"city": "Мурманск, Мурманская область", "surname": "Геращенко", "name": "Оксана", "contact_method": "", "vk": "https://vk.com/oks_ksu", "tg": "@Oks_ecolife", "phone": "", "org": "Руководитель проекта «ЭкоКласс «Атомфлота»", "project_link": "", "team_member": ""}, {"city": "Мурманск, Мурманская область", "surname": "Горбатенко", "name": "Ирина", "contact_method": "", "vk": "https://vk.com/lionessii", "tg": "@IrenLioness", "phone": "", "org": "Руководитель эколо-образовательного объединения \"Зелёный след\", автор региональной акции \"Зеленый маршрут\", преподаватель. Основатель клуба осознанных путешествий Soltarvel", "project_link": "https://vk.com/greentrail51, https://vk.com/sol.travel", "team_member": "Георгиева Анна https://vk.com/id3760985  @GeorgievaAnna81"}, {"city": "Электросталь, Московская область", "surname": "Бень", "name": "Аля", "contact_method": "", "vk": "https://vk.com/alyakhalilova", "tg": "t.me/Alya_ForeverYoung", "phone": "", "org": "Экотренер, специалист по экопросвещению Организатор экомероприятий Участник команды движения «РазДельный сбор – Электросталь + Ногинский район» Продвинутый экологист Выпускница Акселератора экопрофессий от Росатома и «Зелёного Драйвера» Предприниматель Помощник депутата Э. Л. Гурского, Председатель комитета по природопользованию и экологии в г.о. Электросталь при Торгово-Промышленной Палате", "project_link": "https://vk.ru/club109925906", "team_member": ""}, {"city": "Удомля, Тверская область", "surname": "Михайлов", "name": "Сергей", "contact_method": "", "vk": "https://vk.com/drawnqpr", "tg": "t.me/Sergey_michalow", "phone": "", "org": "Эколог, инженер Отдела охраны окружающей среды Калининской атомной станции Вице-президент Молодежной общественной организация Калининской АЭС «Атомная молодежь» (МОО АМ) Технический эксперт проекта по внедрению фандоматов в г.Удомля Экоактивист, практикует плоггинг и скандинавскую ходьбу с раздельным сбором отходов Экологист, участник Акселератора экопрофессий для атомных городов", "project_link": "https://vk.com/mookaes", "team_member": ""}, {"city": "Удомля, Тверская область", "surname": "Нечаева", "name": "Ольга", "contact_method": "", "vk": "https://vk.com/ollaiv", "tg": "t.me/nechaevaoli", "phone": "", "org": "Инженер по ремонту отдела радиационной безопасности Каоининской АЭС. Инициатор проекта «Зелёный цикл: вторая жизнь использованных материалов».", "project_link": "", "team_member": ""}, {"city": "Обнинск, Калужская обл.", "surname": "Лутай", "name": "Анна", "contact_method": "", "vk": "https://vk.com/anna.lutay", "tg": "@nomer12_ru", "phone": "", "org": "Экоцентр Обнинск \"ЦЕЛЬ N12\", руководитель АНО «ЦЕЛЬ N12»", "project_link": "https://nomer12.ru/ https://vk.com/ano.nomer12", "team_member": ""}, {"city": "Обнинск, Калужская обл.", "surname": "Савушкина", "name": "Мария", "contact_method": "", "vk": "", "tg": "@ya_masyanya87", "phone": "", "org": "Куратор проектов «Добрые Крышечки» и «Чистые Игры» в Обнинске", "project_link": "", "team_member": ""}, {"city": "Нововоронеж, Воронежская область", "surname": "Гордеева", "name": "Елизавета", "contact_method": "", "vk": "https://vk.com/elizayourovskaya", "tg": "@elizavettae", "phone": "", "org": "Специалист по КСО ООО \"АтомИнфо\"", "project_link": "", "team_member": ""}, {"city": "Нововоронеж, Воронежская область", "surname": "Романова", "name": "Ольга", "contact_method": "", "vk": "https://vk.com/id645582137", "tg": "@OlgaRomanovaVOVOOP", "phone": "", "org": "Координатор по устойчивому развитию Нововоронежской АЭС, руководителя группы ОППкКПМ Учебно-тренировочного пункта Нововоронежской АЭС, Председатель Воронежского областного отделения Общероссийской общественной организации \"Всероссийское общество охраны природы\"", "project_link": "", "team_member": ""}, {"city": "Заречный, Пензенская обл.", "surname": "Волкова", "name": "Надежда", "contact_method": "", "vk": "https://vk.com/vol_n_a77", "tg": "t.me/Vol_N_A", "phone": "", "org": "Руководитель АНО \"ЗАТО Единая семья\" (популяризация РСО, вещевая помощь, семейный центр и многое другое)", "project_link": "https://vk.com/zatoedinayasemya", "team_member": ""}, {"city": "Димитровград, Ульяновская область", "surname": "Можайская (Шапшова)", "name": "Кристина", "contact_method": "", "vk": "@criss2d", "tg": "https://vk.com/kristi2dsamara", "phone": "", "org": "Президент Благотворительного фонда «Элеос» Организатор экомероприятий  Выпускница Акселератора экопрофессий для атомных городов", "project_link": "https://vk.com/bfeleos", "team_member": "Анна Шишова  https://vk.com/anna.anna88"}, {"city": "Саров, Нижегородская обл.", "surname": "Шадрина", "name": "Ольга", "contact_method": "", "vk": "https://vk.com/id281458036", "tg": "@ShadrinaOlia", "phone": "", "org": "Ведущий специалист ФГУП \"РФЯЦ-ВНИИЭФ\", директор АНО \"Территория заботы\", проект ЭкоДвиж, проект ЗАТО Саров экологичный,  Выпускница Акселератора экопрофессий для атомных городов", "project_link": "Территория заботы | Координационный центр корпоративного волонтерства ФГУП \"РФЯЦ-ВНИИЭФ\" г.Саров А.. 2026 | ВКонтакте  https://vk.com/club224966633", "team_member": ""}, {"city": "Саров, Нижегородская обл.", "surname": "Прихунова", "name": "Татьяна", "contact_method": "", "vk": "https://vk.com/denisova111", "tg": "t.me/by_denisova", "phone": "", "org": "Апсайклинг бренд одежды и аксессуаров Бережно, Самара Выпускница Акселератора экопрофессий для атомных городов", "project_link": "https://vk.com/berejnosarov", "team_member": "https://vk.com/berejnobrand"}, {"city": "Глазов, Удмуртия", "surname": "Петрова", "name": "Зульфия", "contact_method": "", "vk": "https://vk.com/zpetrova67", "tg": "@ZulfiyaPetrova", "phone": "", "org": "Жизнь в стиле ЭКО, финалист Экоакслератора Росатома 2024", "project_link": "", "team_member": ""}, {"city": "Глазов, Удмуртия", "surname": "Пряженникова", "name": "Валентина", "contact_method": "", "vk": "", "tg": "@valentina_poshiv", "phone": "", "org": "ЭкоЭтноМодно, финалист Экоакслератора Росатома 2024", "project_link": "", "team_member": ""}, {"city": "Глазов, Удмуртия", "surname": "Косойкина", "name": "Анна", "contact_method": "", "vk": "https://vk.com/id4561061", "tg": "@anna7612", "phone": "", "org": "Крафтовый цех устойчивого озеленения \"ВозьмиСемечко\", финалист Экоакслератора Росатома 2024", "project_link": "", "team_member": "Арасланова Анастасия  @Nastya_Araslanova"}, {"city": "Глазов, Удмуртия", "surname": "Касимова", "name": "Юлия", "contact_method": "", "vk": "https://vk.com/muskogee", "tg": "@Julia_Kasimova", "phone": "", "org": "Руководитель клубным формированием МБУК \"ЦКР \"Крылья\" Экоклуб города Глазова, Чистые Игры", "project_link": "", "team_member": ""}, {"city": "Глазов, Удмуртия", "surname": "Растегаева", "name": "Яна", "contact_method": "", "vk": "https://vk.com/yrastegaeva74", "tg": "@yanarastegaeva", "phone": "", "org": "АНО Спортивно-культурный центр воспитания детей и молодёжи \"РАСТИ\", Экотропа Глазова", "project_link": "", "team_member": ""}, {"city": "Глазов, Удмуртия", "surname": "Ушаков", "name": "Александр", "contact_method": "", "vk": "https://vk.com/idalexandrushakov", "tg": "@AlexandrUshakovGlazov", "phone": "", "org": "АНО ''Молодежный культурно-спортивный центр ''Тайм-клуб\", проект \"Клуб добрых вещей и дел\"", "project_link": "Перспектива | Креативный центр Глазова  https://vk.com/klub_dobrykh_veshchey", "team_member": ""}, {"city": "Глазов, Удмуртия", "surname": "Блинова", "name": "Елена", "contact_method": "", "vk": "https://vk.com/id350039090", "tg": "@Alnash_Leni", "phone": "", "org": "Библиотека Зеленый Мир", "project_link": "https://vk.com/zelmirlib", "team_member": "Жуйкова (Главатских) Софья @sofi_love97"}, {"city": "Глазов, Удмуртия", "surname": "Шкляева", "name": "Елена (Алёна)", "contact_method": "", "vk": "https://vk.com/id38022537", "tg": "@alena_ashli", "phone": "", "org": "Руководитель своп-маркета «Обмен Взамен»", "project_link": "", "team_member": ""}, {"city": "Озерск, Челябинская  область", "surname": "Гришина", "name": "Светлана", "contact_method": "", "vk": "https://vk.com/svgozr", "tg": "@sgrishina", "phone": "", "org": "Руководитель Центра развития креативных индустрий и социального предпринимательства  Основатель первого в Озерске арт-пространства «Индиго»", "project_link": "https://vk.com/indigo_art_oz", "team_member": ""}, {"city": "Озерск, Челябинская  область", "surname": "Гаврилова", "name": "Екатерина", "contact_method": "", "vk": "https://vk.com/prima360", "tg": "89080445123", "phone": "", "org": "Экологический проект «Разделяйка»", "project_link": "https://vk.com/eco_oz", "team_member": ""}, {"city": "Озерск, Челябинская  область", "surname": "Косажевская", "name": "Наталья", "contact_method": "", "vk": "https://vk.ru/id518603896", "tg": "@tasha1952", "phone": "", "org": "Директор Детского эколого-биологического центра", "project_link": "http://ozersk-debc.ru/ https://vk.ru/ozerskdebc52", "team_member": ""}, {"city": "Лесной, Свердловская область", "surname": "Краснослободцева", "name": "Татьяна", "contact_method": "", "vk": "https://vk.com/t.eco_krasnay", "tg": "t.me/TatianaLetto", "phone": "", "org": "Заместитель директора Информационно-методического центра, муниципальный координатор проекта «Навигаторы детства» Лидер местного сообщества «За чистый Лесной», экоактивист  Автор и лидер проекта «Молодежный экомарафон «За чистый Лесной».  Выпускница Акселератора экопрофессий для атомных городов", "project_link": "https://vk.com/ekomarafonlesnoy", "team_member": ""}, {"city": "Новоуральск, Свердловская область", "surname": "Мурзина", "name": "Александра", "contact_method": "", "vk": "https://vk.com/alexa1107anm", "tg": "@Alexandraismyname", "phone": "", "org": "Амбассадор и экоактивист Всероссийского движения \"Экосистема\" Занимаюсь эковолонтерством и экопросвещением. Вовлекаю молодежь в экопроекты. Имею авторский проект \"Зеленый календарь\".", "project_link": "", "team_member": ""}, {"city": "Новоуральск, Свердловская область", "surname": "Мартыненко", "name": "Алевтина", "contact_method": "", "vk": "https://vk.com/alevtinamartynenko", "tg": "t.me/alevtinamartynenko", "phone": "79049854319", "org": "Руководитель сообщества ЭкоЛюди Новоуральска, проекты: Чистые игры, ЭКОдевичник, Сап-субботник, Субботник-прогулка, На старт,ЭКОотряд, Летний ЭКОчелендж, Зимний ЭКОчелендж, Живи ЭКОлогично (совместно с др. орагнизациями), игра ЭкоSTARt (упакована, распространяется по соц.франшизе)", "project_link": "https://vk.com/eco_lyudi", "team_member": ""}, {"city": "Новоуральск, Свердловская область", "surname": "Багина", "name": "Мария", "contact_method": "", "vk": "https://vk.com/mariia_saveleva", "tg": "@B_Mariya", "phone": "", "org": "Питомник декоративных растений на Урале \"Сад на ладони\", финалист Экоакселератора 2025", "project_link": "https://sadnaladoni.ru/ https://t.me/pitomnik_sad_na_ladoni https://vk.com/pitomnik_sad_na_ladoni", "team_member": "Савельева Анна Сергеевна"}, {"city": "Трехгорный, Челябинская  обл.", "surname": "Стоянова (Ломаева)", "name": "Мария", "contact_method": "", "vk": "https://vk.ru/id353125854", "tg": "@MarusyaStoyanova", "phone": "", "org": "Руководитель группы экологического обеспечения и БКТ ФГУП \"ПСЗ\", руководитель Экоцентра \"Зеленая лампа\"", "project_link": "https://vk.ru/eco_greenlamp", "team_member": ""}, {"city": "Трехгорный, Челябинская  обл.", "surname": "Нурутдинова", "name": "Ольга", "contact_method": "", "vk": "https://vk.com/oly_nurutdinova", "tg": "@Olga_Nurutdinova", "phone": "", "org": "Экоцентр \"Зеленая лампа\"  Экотренер, Выпускница Акселератора экопрофессий для атомных городов", "project_link": "", "team_member": ""}, {"city": "Трехгорный, Челябинская  обл.", "surname": "Жещенко (Баранова)", "name": "Мария", "contact_method": "", "vk": "https://vk.com/mary_baravelly", "tg": "t.me/mary_baravelly", "phone": "", "org": "Руководитель проекта \"Люди и города\", организатор Добро.Центра на базе музея", "project_link": "", "team_member": ""}, {"city": "Трехгорный, Челябинская  обл.", "surname": "Воробьева", "name": "Татьяна", "contact_method": "", "vk": "https://vk.com/id9530334", "tg": "@tanya0601", "phone": "", "org": "Ежемесячная эколого-благотворительная акция «Разделяй с нами!», Начальник отдела охраны окружающей среды и производственной санитарии Приборостроительного завода им. К.А. Володина", "project_link": "", "team_member": ""}, {"city": "Трехгорный, Челябинская  обл.", "surname": "Любимов", "name": "Пётр", "contact_method": "", "vk": "https://vk.com/id46716698", "tg": "@Petrlubinov", "phone": "", "org": "Деревообрабатывающее предприятие, переработка древесных отходов \"В гармонии с природой!\", финалист Экоакселератора 2025", "project_link": "", "team_member": ""}, {"city": "Снежинск, Челябинская область", "surname": "Нинилина", "name": "Галина", "contact_method": "", "vk": "https://vk.com/id347169292", "tg": "@GalinaNinilina", "phone": "", "org": "Снежинский городской женсовет, Зам. председателя, направление эковолонтерство", "project_link": "", "team_member": ""}, {"city": "Снежинск, Челябинская область", "surname": "Плахова", "name": "Наталья", "contact_method": "", "vk": "https://vk.com/id488272478", "tg": "", "phone": "79226395734", "org": "Педагог- эколог, научный руководитель школьного музея природы и экологии Южного Урала", "project_link": "https://vk.com/guide_74", "team_member": ""}, {"city": "Снежинск, Челябинская область", "surname": "Белов", "name": "Александр", "contact_method": "", "vk": "", "tg": "@BelovAlexand", "phone": "", "org": "Основатель проекта \"ЭкоГрибФерма: устойчивое выращивание грибов\", финалист Экоакселератора 2025", "project_link": "", "team_member": ""}, {"city": "Снежинск, Челябинская область", "surname": "Кузнецова", "name": "Надежда", "contact_method": "", "vk": "https://vk.com/dein_neid", "tg": "@dein_neid (ВК)", "phone": "", "org": "Педагог, экоактивист, выпускница Акселератора экопрофессий для атомных городов 2025", "project_link": "", "team_member": ""}, {"city": "Челябинск, Челябинская область", "surname": "Карпелюк", "name": "Анна", "contact_method": "", "vk": "https://vk.com/sax174", "tg": "@anna_ecogid", "phone": "", "org": "АНО «Экогид»", "project_link": "", "team_member": ""}, {"city": "Северск, Томская область", "surname": "Баканова", "name": "Ольга", "contact_method": "", "vk": "https://vk.com/zatomnogodobra", "tg": "@OlgaMnogoDobra", "phone": "", "org": "Благотворительный фонд и секонд-хенд \"Много добра\"  (магазин в Томске, был опыт магазинов в Северске, работа по всей области)", "project_link": "https://vk.com/mnogodobra", "team_member": ""}, {"city": "Железногорск, Красноярский край", "surname": "Балдина", "name": "Елизавета", "contact_method": "", "vk": "https://vk.com/elisfleur", "tg": "t.me/Elizavebeth", "phone": "", "org": "Директор АНО ЦЭИ \"Зелёный гараж\"   Выпускница Акслератора экопрофессий Зелёного Драйвера", "project_link": "https://vk.com/zeleny_garazh", "team_member": ""}, {"city": "Железногорск, Красноярский край", "surname": "Шулепова", "name": "Наталья", "contact_method": "", "vk": "https://vk.com/shulep60", "tg": "t.me/shulep60", "phone": "", "org": "КРОМО «Экологический союз»", "project_link": "https://экосоюз24.рф  https://vk.com/ecosoyuz24", "team_member": ""}, {"city": "Зеленогорск, Красноярский край", "surname": "Шуваев", "name": "Илья", "contact_method": "", "vk": "https://vk.com/id236527805", "tg": "@Ilia_Shuvaev", "phone": "", "org": "Основатель проекта Superfood (производство продуктов питания из технической конопли)", "project_link": "", "team_member": ""}, {"city": "Усолье-Сибирское, Иркутская обл.", "surname": "Петрова (Молчанова)", "name": "Наталья", "contact_method": "", "vk": "https://vk.com/nattaly_pettrova", "tg": "@Nattaly_Pettrova", "phone": "", "org": "Движение Первых Усолье, депутат, соорганизатор ПесочницаЭкоФест 2024", "project_link": "", "team_member": ""}, {"city": "Иркутск, Усолье-Сибирское и др города, Иркутская область", "surname": "Васильева", "name": "Наталия", "contact_method": "Телеграм", "vk": "https://vk.com/natali_vasileva_re", "tg": "@Vasileva_Natalii", "phone": "", "org": "Компания РЕ.ФАБРИКА (ЭкоЦентр РЕ.ФАБРИКА+ЭКОИГУ, Мастерская переработки #ЭКОМОРФОЗЫ АНО \"ФАБРИКА ОСОЗАННОЙ ЖИЗНИ\"", "project_link": "https://рефабрика.рф/", "team_member": ""}, {"city": "Иркутск, Усолье-Сибирское и др города, Иркутская область", "surname": "Васильев", "name": "Никита", "contact_method": "Телеграм", "vk": "https://vk.com/n.o.vasilev", "tg": "@Vasilev_Nik", "phone": "", "org": "Компания РЕ.ФАБРИКА (ЭкоЦентр РЕ.ФАБРИКА+ЭКОИГУ, Мастерская переработки #ЭКОМОРФОЗЫ АНО \"ФАБРИКА ОСОЗАННОЙ ЖИЗНИ\"", "project_link": "https://vk.com/re_fabrika https://t.me/re_fabrika", "team_member": ""}, {"city": "Эксперты Клуба", "surname": "Иоффе", "name": "Дмитрий", "contact_method": "Телеграм", "vk": "https://vk.com/mtr1305", "tg": "@victorovi4", "phone": "", "org": "Чистые Игры", "project_link": "https://cleangames.org/", "team_member": ""}, {"city": "Эксперты Клуба", "surname": "Саблин", "name": "Роман", "contact_method": "Телеграм", "vk": "https://vk.ru/green_driver", "tg": "t.me/SablinRoman", "phone": "", "org": "Основатель компании \"Зелёный Драйвер\" Основатель Акселератора экопрофессий Первый в России и СНГ экотренер Экоконсультант по экологизации бизнеса", "project_link": "https://greendriver.ru  https://vk.ru/greendrivers   https://t.me/greendriver", "team_member": ""}, {"city": "Эксперты Клуба", "surname": "Костина", "name": "Валерия", "contact_method": "Телеграм", "vk": "https://vk.com/kostinavaleriia", "tg": "@Kostina_V", "phone": "79502880391", "org": "Союз \"Во имя добра\", координатор Клуба экопартнёров Росатома", "project_link": "https://vk.com/voimyadobra.soyuz https://voimyadobra.ru/", "team_member": ""}, {"city": "Эксперты Клуба", "surname": "Белухин", "name": "Иван", "contact_method": "", "vk": "", "tg": "", "phone": "", "org": "Переработчик из Сарова (опосредованно с нами как эксперт)", "project_link": "", "team_member": ""}, {"city": "Эксперты Клуба", "surname": "Денисов", "name": "Сергей", "contact_method": "", "vk": "", "tg": "@SergeyAnoEkit", "phone": "", "org": "Руководитель АНО ЭКИТ (экологические и соц проекты). Лектор. Тренер. Эколог.", "project_link": "", "team_member": ""}, {"city": "Эксперты Клуба", "surname": "Закарлюкин", "name": "Дмитрий", "contact_method": "", "vk": "https://vk.com/dzakarlyukin", "tg": "@ZakarlyukinDmitry", "phone": "", "org": "Эколог и предприниматель, основатель проектов «Разделяй-ка», Экотакси, Вещеворот, памп-треки из переработанного вторсырья", "project_link": "https://нольотходов.рф/ https://aircms.online/", "team_member": "Доп. контакт Юринская Екатерина @prostosveti"}];
+const NON_ATOMIC = ["Челябинск, Челябинская область", "Иркутск, Усолье-Сибирское и др города, Иркутская область"];
+
+const cityFilter = document.getElementById('cityFilter');
+const searchBox = document.getElementById('search');
+const searchClear = document.getElementById('searchClear');
+const resetBtn = document.getElementById('resetBtn');
+const container = document.getElementById('container');
+const statsBar = document.getElementById('statsBar');
+const statMembers = document.getElementById('stat-members');
+
+function updateResetVisibility() {
+  const active = searchBox.value !== '' || cityFilter.value !== '';
+  searchClear.style.display = searchBox.value ? 'block' : 'none';
+  resetBtn.style.display = active ? 'block' : 'none';
+}
+
+searchClear.addEventListener('click', () => {
+  searchBox.value = '';
+  updateResetVisibility();
+  render();
+});
+
+resetBtn.addEventListener('click', () => {
+  searchBox.value = '';
+  cityFilter.value = '';
+  updateResetVisibility();
+  render();
+});
+
+const cities = [];
+DATA.forEach(m => { if (m.city && !cities.includes(m.city)) cities.push(m.city); });
+cities.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c;
+  opt.textContent = NON_ATOMIC.includes(c) ? c + ' (не атомный город)' : c;
+  cityFilter.appendChild(opt);
+});
+
+const URL_REGEX = /https?:\/\/[^\s,]+/g;
+
+function extractUrls(str) {
+  if (!str) return [];
+  return str.match(URL_REGEX) || [];
+}
+
+function makeTgLink(tg) {
+  if (!tg) return '';
+  tg = tg.trim().replace(/^\n/, '').trim();
+  if (tg.startsWith('@')) return 'https://t.me/' + tg.slice(1);
+  if (tg.startsWith('t.me/')) return 'https://' + tg;
+  if (tg.startsWith('https://t.me/')) return tg;
+  return 'https://t.me/' + tg;
+}
+
+function makeVkLink(vk) {
+  if (!vk) return '';
+  vk = vk.trim();
+  if (vk.startsWith('http')) return vk;
+  if (vk.startsWith('vk.')) return 'https://' + vk;
+  return vk;
+}
+
+function tgDisplay(tg) {
+  if (!tg) return '';
+  tg = tg.trim().replace(/^\n/, '').trim();
+  if (tg.startsWith('https://t.me/')) return '@' + tg.replace('https://t.me/', '');
+  if (tg.startsWith('t.me/')) return '@' + tg.replace('t.me/', '');
+  if (tg.startsWith('@')) return tg;
+  return '@' + tg;
+}
+
+function formatPhone(phone) {
+  if (!phone) return '';
+  let p = String(phone).replace(/[^0-9+]/g, '');
+  if (p.length === 11 && (p.startsWith('7') || p.startsWith('8'))) p = '+7' + p.slice(1);
+  if (p.startsWith('+7') && p.length === 12) {
+    return '+7 (' + p.slice(2,5) + ') ' + p.slice(5,8) + '-' + p.slice(8,10) + '-' + p.slice(10,12);
+  }
+  return p;
+}
+
+function shortUrl(url) {
+  return url.replace(/https?:\/\//, '').replace(/\/$/, '').replace(/^www\./, '');
+}
+
+function escHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderMember(m, isExpert) {
+  let links = '';
+  if (m.vk) links += '<a class="link-vk" href="' + escHTML(makeVkLink(m.vk)) + '" target="_blank" rel="noopener">VK</a>';
+  if (m.tg) links += '<a class="link-tg" href="' + escHTML(makeTgLink(m.tg)) + '" target="_blank" rel="noopener">' + escHTML(tgDisplay(m.tg)) + '</a>';
+  if (m.phone) links += '<a class="link-phone" href="tel:' + escHTML(m.phone) + '">' + escHTML(formatPhone(m.phone)) + '</a>';
+  if (m.project_link) {
+    const urls = extractUrls(m.project_link);
+    urls.forEach(url => {
+      const short = shortUrl(url);
+      links += '<a class="link-project" href="' + escHTML(url) + '" target="_blank" rel="noopener">' + escHTML(short.length > 32 ? short.slice(0,30) + '…' : short) + '</a>';
+    });
+  }
+  
+  let html = '<div class="member-card">';
+  html += '<div class="member-name">' + escHTML(m.surname) + ' ' + escHTML(m.name);
+  if (isExpert) html += '<span class="expert-badge">Эксперт</span>';
+  html += '</div>';
+  if (m.org) html += '<div class="member-org">' + escHTML(m.org) + '</div>';
+  if (links) html += '<div class="member-links">' + links + '</div>';
+  if (m.team_member) html += '<div class="member-team">Член команды: ' + escHTML(m.team_member) + '</div>';
+  html += '</div>';
+  return html;
+}
+
+const collapsedCities = new Set();
+
+function render() {
+  const query = searchBox.value.toLowerCase().trim();
+  const cityVal = cityFilter.value;
+  
+  let filtered = DATA.filter(m => {
+    if (cityVal && m.city !== cityVal) return false;
+    if (query) {
+      const text = (m.surname + ' ' + m.name + ' ' + m.city + ' ' + m.org + ' ' + m.tg + ' ' + m.team_member).toLowerCase();
+      return text.includes(query);
+    }
+    return true;
+  });
+  
+  const groups = {};
+  filtered.forEach(m => {
+    const c = m.city || 'Без города';
+    if (!groups[c]) groups[c] = [];
+    groups[c].push(m);
+  });
+  
+  const orderedCities = [];
+  DATA.forEach(m => {
+    const c = m.city || 'Без города';
+    if (groups[c] && !orderedCities.includes(c)) orderedCities.push(c);
+  });
+  
+  const participantsFiltered = filtered.filter(m => m.city !== 'Эксперты Клуба');
+  statMembers.textContent = participantsFiltered.length;
+  
+  statsBar.textContent = 'Показано ' + filtered.length + ' из ' + DATA.length + ' участников';
+  
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">Ничего не найдено</div>';
+    return;
+  }
+  
+  let html = '';
+  orderedCities.forEach(city => {
+    const mems = groups[city];
+    const isExpert = city === 'Эксперты Клуба';
+    const isNonAtomic = NON_ATOMIC.includes(city);
+    const isCollapsed = collapsedCities.has(city);
+    html += '<div class="city-group">';
+    html += '<div class="city-header' + (isExpert ? ' expert' : isNonAtomic ? ' non-atomic' : '') + (isCollapsed ? ' collapsed' : '') + '" data-city="' + escHTML(city) + '">';
+    html += '<span><span class="arrow">&#9660;</span> ' + escHTML(city);
+    if (isNonAtomic) html += '<span class="non-atomic-note">(не атомный город)</span>';
+    html += '</span>';
+    html += '<span class="count">' + mems.length + '</span>';
+    html += '</div>';
+    html += '<div class="members-list' + (isCollapsed ? ' hidden' : '') + '">';
+    mems.forEach(m => { html += renderMember(m, isExpert); });
+    html += '</div></div>';
+  });
+  
+  container.innerHTML = html;
+  
+  document.querySelectorAll('.city-header').forEach(el => {
+    el.addEventListener('click', () => {
+      const city = el.dataset.city;
+      if (collapsedCities.has(city)) collapsedCities.delete(city); else collapsedCities.add(city);
+      el.classList.toggle('collapsed');
+      el.nextElementSibling.classList.toggle('hidden');
+    });
+  });
+}
+
+searchBox.addEventListener('input', () => { updateResetVisibility(); render(); });
+cityFilter.addEventListener('change', () => { updateResetVisibility(); render(); });
+render();
+</script>
+</body>
+</html>
